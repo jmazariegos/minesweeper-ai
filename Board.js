@@ -14,12 +14,32 @@ for(var i = 0; i < 8; i++){
     }
 }
 
+//Miscellaneous Functions (Img Change etc.)
+
+function chgRange(){
+    const $bombNum = document.getElementById("bombNum");
+    $bombNum.innerText = document.getElementById("perBomb").value;
+}
+
+function push(x, y){
+    const board = document.getElementById('board');
+    const $cell = board.rows[x].cells[y].firstElementChild;
+    $cell.src = 'resources/block pushed.png'
+}
+
+function pull(x, y){
+    const board = document.getElementById('board');
+    const $cell = board.rows[x].cells[y].firstElementChild;
+    $cell.src = 'resources/block.png'
+}
+
 //Timer Functions
 
 function timerIncrement(){
     const $time = document.getElementById("time");
-    $time.innerText = parseInt($time.innerText) + 1;
-    if($time.value == 999){
+    let val = parseInt($time.innerText) + 1;
+    $time.innerText = val;
+    if(val == 999){
         clearInterval(timer);
     }
 }
@@ -219,18 +239,4 @@ function win(){
         }
     }
     alert("you win");
-}
-
-//Miscellaneous Functions (Img Change etc.)
-
-function push(x, y){
-    const board = document.getElementById('board');
-    const $cell = board.rows[x].cells[y].firstElementChild;
-    $cell.src = 'resources/block pushed.png'
-}
-
-function pull(x, y){
-    const board = document.getElementById('board');
-    const $cell = board.rows[x].cells[y].firstElementChild;
-    $cell.src = 'resources/block.png'
 }

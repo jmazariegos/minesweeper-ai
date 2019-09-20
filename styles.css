@@ -1,0 +1,17 @@
+#board-container{
+    align-items: center;
+}
+#text-container{
+    align-items: baseline;
+    display: inline;
+}
+#board{
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+#board td, .cell{
+    padding: 0;
+}
+#board .cell{
+    display: block;
+}
