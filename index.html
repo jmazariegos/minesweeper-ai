@@ -10,20 +10,30 @@
     <script src="ai.js"></script>
 </head>
 <body>
-    <div>
-        <button onclick="createBoard(8, 8)">8x8</button>
-        <button onclick="createBoard(16, 16)">16x16</button>
-        <button onclick="createBoard(16, 30)">16x30</button>
-        <input type="range" min="1" max="54" value="12" id="perBomb" oninput="chgRange()">
-        <label id="bombNum">12</label>
+    <div id="options-container">
+        <table id="options">
+            <tr>
+                <td><button onclick="createBoard(8, 8)" class="option">8x8</button></td>
+                <td><button onclick="createBoard(16, 16)" class="option">16x16</button></td>
+                <td><button onclick="createBoard(16, 30)" class="option">16x30</button></td>
+                <td><input type="range" min="1" max="54" value="12" id="perBomb" oninput="chgRange()" class="option"></td>
+                <td><label id="bombNum">12</label></td>
+            </tr>
+        </table>
     </div>
-    <div id="board-container">
-        <div id="text-container">
-            <label id="bombs">12</label>
-            <button onclick="resetBoard()">Reset</button>
-            <label id="time">0</label>
-        </div>
-        <table id="board"></table>
+    <div id="board-container" oncontextmenu="return false;">
+        <table id="counters" oncontextmenu="return false;">
+            <tr>
+                <td><img src="resources/t0.png" oncontextmenu="return false;" class="bombs"></td>
+                <td><img src="resources/t0.png" oncontextmenu="return false;" class="bombs"></td>
+                <td><img src="resources/t0.png" oncontextmenu="return false;" class="bombs"></td>
+                <td><img src="resources/happy.png" oncontextmenu="return false;" onclick="resetBoard()" id="guy"></td>
+                <td><img src="resources/t0.png" oncontextmenu="return false;" class="time"></td>
+                <td><img src="resources/t0.png" oncontextmenu="return false;" class="time"></td>
+                <td><img src="resources/t0.png" oncontextmenu="return false;" class="time"></td>
+            </tr>
+        </table>
+        <table id="board" oncontextmenu="return false;"></table>
     </div>
     <script>
         createBoard(8, 8);

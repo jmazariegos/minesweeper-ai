@@ -1,7 +1,9 @@
 var timer;
+var flag;
 var r_length = 8;
 var c_length = 8;
 var left = 0;
+var bombsLeft = 0;
 var started = false;
 var bombs = new Array();
 var revealed = new Array();
@@ -14,31 +16,137 @@ for(var i = 0; i < 8; i++){
     }
 }
 
+document.documentElement.addEventListener('mouseout', function(e){
+    if(flag) {
+        const board = document.getElementById('board');
+        for (var i = 0; i < r_length; i++) {
+            for (var j = 0; j < c_length; j++) {
+                const $cell = board.rows[i].cells[j].firstElementChild;
+                if ($cell == e.target) {
+                    releaseTile(i, j);
+                }
+            }
+        }
+    }
+});
+
 //Miscellaneous Functions (Img Change etc.)
+
+function chgBombs(bombs, val){
+    if(val < 0){
+        return;
+    }
+    if(val < 10){
+        bombs[0].src = 'resources/t0.png';
+        bombs[1].src = 'resources/t0.png';
+        bombs[2].src = 'resources/t' + val + '.png';
+    }else if(val < 100){
+        bombs[0].src = 'resources/t0.png';
+        bombs[1].src = 'resources/t' + Math.floor(val/10)%10 + '.png';
+        bombs[2].src = 'resources/t' + val%10 + '.png';
+    }else{
+        bombs[0].src = 'resources/t' + Math.floor(val/100)%10 + '.png';
+        bombs[1].src = 'resources/t' + Math.floor(val/10)%10 + '.png';
+        bombs[2].src = 'resources/t' + val%10 + '.png';
+    }
+}
 
 function chgRange(){
     const $bombNum = document.getElementById("bombNum");
     $bombNum.innerText = document.getElementById("perBomb").value;
+    if(!started){
+        chgBombs(document.getElementsByClassName('bombs'), document.getElementById("perBomb").value);
+    }
 }
 
-function push(x, y){
+function pushTile(x, y){
+    var e = window.event;
+    if(e.which == 1){
+        e.preventDefault();
+        e.cancelBubble = false;
+    }
+    const guy = document.getElementById('guy');
     const board = document.getElementById('board');
     const $cell = board.rows[x].cells[y].firstElementChild;
-    $cell.src = 'resources/block pushed.png'
+    if(e.which == 3){
+        if(started){
+            if($cell.src.includes('block')){
+                $cell.src = 'resources/flag.png';
+                bombsLeft--;
+                chgBombs(document.getElementsByClassName('bombs'), bombsLeft);
+            }else{
+                $cell.src = 'resources/block.png';
+                bombsLeft++;
+                chgBombs(document.getElementsByClassName('bombs'), bombsLeft);
+            }
+        }
+        return;
+    }else {
+        $cell.src = $cell.src.slice(0, $cell.src.length - 4) + ' pushed.png';
+    }
+    guy.src = 'resources/o.png';
+
+    if(started){
+        flag = setTimeout(function () {
+            if ($cell.src.includes('block')) {
+                $cell.src = 'resources/flag.png';
+                bombsLeft--;
+                chgBombs(document.getElementsByClassName('bombs'), bombsLeft);
+            } else {
+                $cell.src = 'resources/block.png';
+                bombsLeft++;
+                chgBombs(document.getElementsByClassName('bombs'), bombsLeft);
+            }
+            guy.src = 'resources/happy.png';
+            flag = null;
+        }, 1000);
+    }
 }
 
-function pull(x, y){
+function releaseTile(x, y){
+    var e = window.event;
+    if(e.which == 3){
+        return;
+    }
+    const guy = document.getElementById('guy');
     const board = document.getElementById('board');
     const $cell = board.rows[x].cells[y].firstElementChild;
-    $cell.src = 'resources/block.png'
+    guy.src = 'resources/happy.png';
+    if(!started || flag){
+        clearTimeout(flag);
+        flag = null;
+        if(!$cell.src.includes('flag')) {
+            if (started) {
+                reveal(x, y, true);
+            } else {
+                setBombs(x, y);
+            }
+        }else{
+            $cell.src = 'resources/flag.png';
+        }
+    }
 }
 
 //Timer Functions
 
 function timerIncrement(){
-    const $time = document.getElementById("time");
-    let val = parseInt($time.innerText) + 1;
-    $time.innerText = val;
+    const $time = document.getElementsByClassName("time");
+    let val = (parseInt($time[0].src.charAt($time[0].src.lastIndexOf('t')+1))*100) +
+        (parseInt($time[1].src.charAt($time[1].src.lastIndexOf('t')+1))*10) +
+        parseInt($time[2].src.charAt($time[2].src.lastIndexOf('t')+1)) + 1;
+    if(val < 10){
+        $time[0].src = 'resources/t0.png';
+        $time[1].src = 'resources/t0.png';
+        $time[2].src = 'resources/t' + val + '.png';
+    }else if(val < 100){
+        $time[0].src = 'resources/t0.png';
+        $time[1].src = 'resources/t' + Math.floor(val/10)%10 + '.png';
+        $time[2].src = 'resources/t' + val%10 + '.png';
+    }else{
+        $time[0].src = 'resources/t' + Math.floor(val/100)%10 + '.png';
+        $time[1].src = 'resources/t' + Math.floor(val/10)%10 + '.png';
+        $time[2].src = 'resources/t' + val%10 + '.png';
+    }
     if(val == 999){
         clearInterval(timer);
     }
@@ -67,17 +175,23 @@ function createBoard(rows, cols) {
     var text = "<tr>";
     for(var i = 0; i < rows; i++){
         for(var j = 0; j < cols; j++){
-            text += "<td><img onclick='setBombs(" + i + "," + j + ")' class='cell' src='resources/block.png' onmousedown='push(" + i + "," + j + ")'/></td>";
+            text += "<td><img src='resources/block.png' onmousedown='pushTile(" + i + "," + j + ")' onmouseup='releaseTile(" + i + "," + j + ")' oncontextmenu='return false;'/></td>";
         }
         text += "</tr>"
     }
     board.innerHTML = text;
 
-    const $bombs = document.getElementById("bombs");
-    $bombs.innerText = document.getElementById("perBomb").value;
+    const boardContainer = document.getElementById('board-container');
+    boardContainer.style.width = (cols*19 + 10).toString() + "px";
+    boardContainer.style.height = (rows*19 + 27).toString() + "px";
+
+    chgBombs(document.getElementsByClassName('bombs'), document.getElementById("perBomb").value);
 }
 
 function resetBoard(){
+    const guy = document.getElementById('guy');
+    guy.src = 'resources/happy.png';
+
     for(var i = 0; i < r_length; i++){
         for(var j = 0; j < c_length; j++){
             bombs[i][j] = false;
@@ -90,30 +204,21 @@ function resetBoard(){
         for(var j = 0; j < c_length; j++){
             const $cell = board.rows[i].cells[j].firstElementChild;
             $cell.src = 'resources/block.png';
-            $cell.setAttribute("onclick", "setBombs(" + i + ", " + j + ", true);");
-            $cell.setAttribute("onmousedown", "push(" + i + ", " + j + ");");
+            $cell.setAttribute("onmousedown", "pushTile(" + i + ", " + j + ");");
+            $cell.setAttribute("onmouseup", "releaseTile(" + i + ", " + j + ");");
         }
     }
 
     started = false;
-    const $bombs = document.getElementById("bombs");
-    $bombs.innerText = document.getElementById("perBomb").value;
+    chgBombs(document.getElementsByClassName('bombs'), document.getElementById("perBomb").value);
     clearInterval(timer);
-    const $time = document.getElementById("time");
-    $time.innerText = "0";
-
+    const $time = document.getElementsByClassName("time");
+    for(var i = 0; i < 3; i++){
+        $time[i].src = 'resources/t0.png';
+    }
 }
 
 function setBombs(x, y){
-    const board = document.getElementById('board');
-
-    for(var i = 0; i < r_length; i++){
-        for(var j = 0; j < c_length; j++){
-            const $cell = board.rows[i].cells[j].firstElementChild;
-            $cell.setAttribute("onclick", "reveal("+i+", " + j + ", true);");
-        }
-    }
-
     const num = document.getElementById("perBomb").value;
     for(var i = 0; i < num; i++){
         var row, col;
@@ -126,14 +231,18 @@ function setBombs(x, y){
     }
 
     left = r_length*c_length - document.getElementById("perBomb").value;
-    reveal(x, y, true);
+    bombsLeft = document.getElementById("perBomb").value;
     timer = setInterval(timerIncrement, 1000);
+    reveal(x, y, true);
     started = true;
 }
 
 function reveal(x, y, clicked){
     const board = document.getElementById('board');
     const $cell = board.rows[x].cells[y].firstElementChild;
+    if($cell.src.includes('flag')){
+        return;
+    }
     if(bombs[x][y] && clicked){
         lose(x, y);
         alert("you lose");
@@ -198,8 +307,8 @@ function reveal(x, y, clicked){
     }else{
         $cell.src = 'resources/' + bombsNear + '.png';
     }
-    $cell.onclick = null;
     $cell.onmousedown = null;
+    $cell.onmouseup = null;
     left -= 1;
     if(left == 0){
         win();
@@ -208,34 +317,45 @@ function reveal(x, y, clicked){
 }
 
 function lose(x, y){
+    const guy = document.getElementById('guy');
+    guy.src = 'resources/wah.png';
     clearInterval(timer);
     started = false;
     const board = document.getElementById('board');
     for(var i = 0; i < r_length; i++){
         for(var j = 0; j < c_length; j++){
             const $cell = board.rows[i].cells[j].firstElementChild;
-            $cell.onclick = null;
             $cell.onmousedown = null;
+            $cell.onmouseup = null;
             if(bombs[i][j]){
                 if(x == i && y == j){
                     $cell.src = 'resources/explosion.png';
-                }else{
+                }else if(!$cell.src.includes('flag')){
                     $cell.src = 'resources/bomb.png';
                 }
+            }else if($cell.src.includes('flag')){
+                $cell.src = 'resources/wrong.png';
             }
         }
     }
 }
 
 function win(){
+    const guy = document.getElementById('guy');
+    var uwu = Math.random();
+    if(uwu < 0.05){
+        guy.src = 'resources/uwu.png';
+    }else{
+        guy.src = 'resources/cool.png';
+    }
     clearInterval(timer);
     started = false;
     const board = document.getElementById('board');
     for(var i = 0; i < r_length; i++){
         for(var j = 0; j < c_length; j++){
             const $cell = board.rows[i].cells[j].firstElementChild;
-            $cell.onclick = null;
             $cell.onmousedown = null;
+            $cell.onmouseup = null;
         }
     }
     alert("you win");

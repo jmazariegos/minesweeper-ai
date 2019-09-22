@@ -1,17 +1,26 @@
 #board-container{
     align-items: center;
+    width: 162px;
+    height: 178px;
+    margin: auto;
+    background: #404E40;
 }
 #text-container{
-    align-items: baseline;
-    display: inline;
+    align-items: center;
 }
-#board{
-    border-collapse: collapse;
-    border-spacing: 0;
-}
-#board td, .cell{
+.option{
     padding: 0;
 }
-#board .cell{
+table{
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: auto;
+}
+td, img{
+    padding: 0;
+}
+img{
     display: block;
+    -webkit-user-drag: none;
+    user-select: none;
 }
