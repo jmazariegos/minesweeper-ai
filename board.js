@@ -279,7 +279,6 @@ function reveal(x, y, clicked){
     }
 
     if(bombsNear == 0){
-        $cell.src = 'resources/empty.png';
         if(x+1 < r_length){
             reveal(x+1, y, false);
         }
@@ -304,9 +303,8 @@ function reveal(x, y, clicked){
         if(x+1 < r_length && y-1 >= 0){
             reveal(x+1, y-1, false);
         }
-    }else{
-        $cell.src = 'resources/' + bombsNear + '.png';
     }
+    $cell.src = 'resources/' + bombsNear + '.png';
     $cell.onmousedown = null;
     $cell.onmouseup = null;
     left -= 1;
