@@ -1,7 +1,7 @@
 var timer;
 var flag;
-var r_length = 8;
-var c_length = 8;
+var rLength = 8;
+var cLength = 8;
 var left = 0;
 var bombsLeft = 0;
 var started = false;
@@ -19,8 +19,8 @@ for(var i = 0; i < 8; i++){
 document.documentElement.addEventListener('mouseout', function(e){
     if(flag) {
         const board = document.getElementById('board');
-        for (var i = 0; i < r_length; i++) {
-            for (var j = 0; j < c_length; j++) {
+        for (var i = 0; i < rLength; i++) {
+            for (var j = 0; j < cLength; j++) {
                 const $cell = board.rows[i].cells[j].firstElementChild;
                 if ($cell == e.target) {
                     releaseTile(i, j);
@@ -31,7 +31,6 @@ document.documentElement.addEventListener('mouseout', function(e){
 });
 
 //Miscellaneous Functions (Img Change etc.)
-
 function chgBombs(bombs, val){
     if(val < 0){
         return;
@@ -155,8 +154,17 @@ function timerIncrement(){
 //Board Functions
 
 function createBoard(rows, cols) {
-    r_length = rows;
-    c_length = cols;
+    started = false;
+    clearInterval(timer);
+    const $time = document.getElementsByClassName("time");
+    for(var i = 0; i < 3; i++){
+        $time[i].src = 'resources/t0.png';
+    }
+    const guy = document.getElementById('guy');
+    guy.src = 'resources/happy.png';
+
+    rLength = rows;
+    cLength = cols;
     bombs = new Array();
     revealed = new Array();
     for(var i = 0; i < rows; i++){
@@ -192,16 +200,16 @@ function resetBoard(){
     const guy = document.getElementById('guy');
     guy.src = 'resources/happy.png';
 
-    for(var i = 0; i < r_length; i++){
-        for(var j = 0; j < c_length; j++){
+    for(var i = 0; i < rLength; i++){
+        for(var j = 0; j < cLength; j++){
             bombs[i][j] = false;
             revealed[i][j] = false;
         }
     }
 
     const board = document.getElementById('board');
-    for(var i = 0; i < r_length; i++){
-        for(var j = 0; j < c_length; j++){
+    for(var i = 0; i < rLength; i++){
+        for(var j = 0; j < cLength; j++){
             const $cell = board.rows[i].cells[j].firstElementChild;
             $cell.src = 'resources/block.png';
             $cell.setAttribute("onmousedown", "pushTile(" + i + ", " + j + ");");
@@ -223,14 +231,14 @@ function setBombs(x, y){
     for(var i = 0; i < num; i++){
         var row, col;
         do {
-            row = Math.floor((Math.random() * r_length));
-            col = Math.floor((Math.random() * c_length));
+            row = Math.floor((Math.random() * rLength));
+            col = Math.floor((Math.random() * cLength));
         }while(bombs[row][col] || (row == x && col == y) || (row == x+1 && col == y) || (row == x+1 && col == y+1) || (row == x+1 && col == y-1)
         || (row == x-1 && col == y) || (row == x-1 && col == y+1) || (row == x && col == y+1) || (row == x && col == y-1) || (row == x-1 && col == y-1));
         bombs[row][col] = true;
     }
 
-    left = r_length*c_length - document.getElementById("perBomb").value;
+    left = rLength*cLength - document.getElementById("perBomb").value;
     bombsLeft = document.getElementById("perBomb").value;
     timer = setInterval(timerIncrement, 1000);
     reveal(x, y, true);
@@ -253,54 +261,54 @@ function reveal(x, y, clicked){
     }
     revealed[x][y] = true;
     let bombsNear = 0;
-    if(x+1 < r_length && bombs[x+1][y]){
+    if(x+1 < rLength && bombs[x+1][y]){
         bombsNear++;
     }
-    if(x+1 < r_length && y+1 < c_length && bombs[x+1][y+1]){
+    if(x+1 < rLength && y+1 < cLength && bombs[x+1][y+1]){
         bombsNear++;
     }
     if(x-1 >= 0 && bombs[x-1][y]){
         bombsNear++;
     }
-    if(x-1 >= 0 && y+1 < c_length && bombs[x-1][y+1]){
+    if(x-1 >= 0 && y+1 < cLength && bombs[x-1][y+1]){
         bombsNear++;
     }
     if(x-1 >= 0 && y-1 >= 0 && bombs[x-1][y-1]){
         bombsNear++;
     }
-    if(y+1 < c_length && bombs[x][y+1]){
+    if(y+1 < cLength && bombs[x][y+1]){
         bombsNear++;
     }
     if(y-1 >= 0 && bombs[x][y-1]){
         bombsNear++;
     }
-    if(x+1 < r_length && y-1 >= 0 && bombs[x+1][y-1]){
+    if(x+1 < rLength && y-1 >= 0 && bombs[x+1][y-1]){
         bombsNear++;
     }
 
     if(bombsNear == 0){
-        if(x+1 < r_length){
+        if(x+1 < rLength){
             reveal(x+1, y, false);
         }
-        if(x+1 < r_length && y+1 < c_length){
+        if(x+1 < rLength && y+1 < cLength){
             reveal(x+1, y+1, false);
         }
         if(x-1 >= 0){
             reveal(x-1, y, false);
         }
-        if(x-1 >= 0 && y+1 < c_length){
+        if(x-1 >= 0 && y+1 < cLength){
             reveal(x-1, y+1, false);
         }
         if(x-1 >= 0 && y-1 >= 0){
             reveal(x-1, y-1, false);
         }
-        if(y+1 < c_length){
+        if(y+1 < cLength){
             reveal(x, y+1, false);
         }
         if(y-1 >= 0){
             reveal(x, y-1, false);
         }
-        if(x+1 < r_length && y-1 >= 0){
+        if(x+1 < rLength && y-1 >= 0){
             reveal(x+1, y-1, false);
         }
     }
@@ -320,8 +328,8 @@ function lose(x, y){
     clearInterval(timer);
     started = false;
     const board = document.getElementById('board');
-    for(var i = 0; i < r_length; i++){
-        for(var j = 0; j < c_length; j++){
+    for(var i = 0; i < rLength; i++){
+        for(var j = 0; j < cLength; j++){
             const $cell = board.rows[i].cells[j].firstElementChild;
             $cell.onmousedown = null;
             $cell.onmouseup = null;
@@ -349,8 +357,8 @@ function win(){
     clearInterval(timer);
     started = false;
     const board = document.getElementById('board');
-    for(var i = 0; i < r_length; i++){
-        for(var j = 0; j < c_length; j++){
+    for(var i = 0; i < rLength; i++){
+        for(var j = 0; j < cLength; j++){
             const $cell = board.rows[i].cells[j].firstElementChild;
             $cell.onmousedown = null;
             $cell.onmouseup = null;

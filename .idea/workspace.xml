@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1517b613-eb7c-408a-b64f-4d479f4bd0c6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/resources/hal.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ai.js" beforeDir="false" afterPath="$PROJECT_DIR$/ai.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/board.js" beforeDir="false" afterPath="$PROJECT_DIR$/board.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -38,7 +41,7 @@
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../website" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
@@ -53,6 +56,16 @@
           <option name="name" value="StatusDashboardGroupingRule" />
         </RuleState>
       </list>
+    </option>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="allServicesViewState">
+      <serviceView>
+        <treeState>
+          <expand />
+          <select />
+        </treeState>
+      </serviceView>
     </option>
   </component>
   <component name="SvnConfiguration">
@@ -76,6 +89,17 @@
       <workItem from="1569037286160" duration="5514000" />
       <workItem from="1569088405125" duration="12503000" />
       <workItem from="1569175216945" duration="9157000" />
+      <workItem from="1569440625974" duration="1827000" />
+      <workItem from="1570141983700" duration="577000" />
+      <workItem from="1571182483522" duration="4724000" />
+      <workItem from="1571933928388" duration="759000" />
+      <workItem from="1571955599408" duration="2495000" />
+      <workItem from="1573239975590" duration="23042000" />
+      <workItem from="1574365694989" duration="4799000" />
+      <workItem from="1578418652662" duration="353000" />
+      <workItem from="1578514356536" duration="128000" />
+      <workItem from="1579555598505" duration="50000" />
+      <workItem from="1588017228073" duration="1815000" />
     </task>
     <task id="LOCAL-00001" summary="yuh">
       <created>1568839620074</created>
