@@ -253,7 +253,7 @@ function reveal(x, y, clicked){
     }
     if(bombs[x][y] && clicked){
         lose(x, y);
-        alert("you lose");
+        //alert("you lose");
         return;
     }
     if(revealed[x][y] || (bombs[x][y] && !clicked)){
@@ -364,5 +364,5 @@ function win(){
             $cell.onmouseup = null;
         }
     }
-    alert("you win");
+    //alert("you win");
 }

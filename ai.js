@@ -46,7 +46,7 @@ class inputNode extends Node{
         let maxConnection = super.forwardPass();
         let maxNode = maxConnection.getRight();
         let choice = maxNode.forwardPass();
-        return (maxConnection.getPositions()[choice[0]], choice[1]);
+        return [maxConnection.getPositions()[choice[0]], choice[1]];
     }
 }
 
@@ -71,7 +71,7 @@ class hiddenNode extends Node{
     forwardPass(){
         let maxConnection = super.forwardPass();
         let maxNode = maxConnection.getRight();
-        return (maxConnection.getPositions()[0], maxNode);
+        return [maxConnection.getPositions()[0], maxNode];
     }
 
     backwardPass(reward){
@@ -89,11 +89,16 @@ class outputNode extends Node{
             return;
         }
         connection.adjustWeight(connection.getWeight()*reward);
+        let difference = Math.abs(1 - reward);
         let neighbours = leftNode.getRightConnections();
         let maxWeight = 0;
         for(let neighbour = 0; neighbour < neighbours.length; neighbour++){
             if(neighbours[neighbour] != connection){
-                neighbours[neighbour].adjustWeight(neighbours[neighbour].getWeight()*(1-reward/leftNode.getTiles()))
+                if(reward > 1) {
+                    neighbours[neighbour].adjustWeight(neighbours[neighbour].getWeight() * (1 - difference / leftNode.getTiles()));
+                }else{
+                    neighbours[neighbour].adjustWeight(neighbours[neighbour].getWeight() * (1 + difference / leftNode.getTiles()));
+                }
             }
             if(neighbours[neighbour].getWeight() > maxWeight){
                 maxWeight = neighbours[neighbour].getWeight();
@@ -128,7 +133,7 @@ class Connection{
     }
 
     addPosition(position){
-        this.positions.concat(position);
+        this.positions.push(position);
     }
 
     getPositions(){
@@ -144,33 +149,54 @@ class AI{
     }
 
     updateBoard(boardState){
+        //board node
         let node = new inputNode(boardState);
+        //console.log(boardState);
+
+        //going through each 3x3 square on the board
         for(var i = 0; i < boardState.length-2; i++){
             for(var j = 0; j < boardState[0].length-2; j++){
-                let miniState = [[boardState[i][j], boardState[i][j+1], boardState[i][j+2]],
-                    boardState[i+1][j], boardState[i+1][j+1], boardState[i+1][j+2],
-                    boardState[i+2][j], boardState[i+2][j+1], boardState[i+2][j+2]];
-                let miniNode;
-                let unrevealed = 9 - miniState.filter(Boolean).length
-                if(!(miniState in this.hiddenNodeDict)){
-                    miniNode = new hiddenNode(miniState, unrevealed);
+                let squareState = [[boardState[i][j], boardState[i][j+1], boardState[i][j+2]],
+                    [boardState[i+1][j], boardState[i+1][j+1], boardState[i+1][j+2]],
+                    [boardState[i+2][j], boardState[i+2][j+1], boardState[i+2][j+2]]];
+                //console.log(squareState);
+                let unrevealed = 9 - squareState.filter(Boolean).length;
+
+                //have we seen this state before?
+                let squareNode;
+                if(!(squareState in Object.keys(this.hiddenNodeDict))){
+                    squareNode = new hiddenNode(squareState, unrevealed);
+
+                    //go through each tile in the square
                     for(var i_m = 0; i_m < 3; i_m++) {
                         for (var j_m = 0; j_m < 3; j_m++) {
-                            let microNode = new outputNode(miniState[i_m][j_m])
-                            let miniConnection = new Connection(1/unrevealed, miniNode, microNode);
-                            miniConnection.addPosition([(i_m + 1) + (j_m + 1)]);
-                            miniNode.addRightConnection(miniConnection);
-                            microNode.addLeftConnection(miniConnection);
+                            let tileNode = new outputNode(squareState[i_m][j_m])
+                            let weight = 1.0/unrevealed
+                            if(squareState[i_m][j_m]){
+                                weight = 0;
+                            }
+                            let sqTiConnection = new Connection(weight, squareNode, tileNode);
+
+                            //add relative position in the square i.e. tile 0 - 8 (left to right then down 1)
+                            sqTiConnection.addPosition((i_m*3) + j_m);
+                            squareNode.addRightConnection(sqTiConnection);
+                            tileNode.addLeftConnection(sqTiConnection);
                         }
                     }
-                    this.hiddenNodeDict[miniState] = miniNode;
+                    this.hiddenNodeDict[squareState] = squareNode;
+
+                //we have seen this state before!
                 }else{
-                    miniNode = this.hiddenNodeDict[miniState];
+                    squareNode = this.hiddenNodeDict[squareState];
                 }
-                let connection = new Connection(miniNode.getMaxWeight(), node, miniNode);
-                connection.addPosition([(i, j), (i, j+1), (i, j+2), (i+1, j), (i+1, j+1), (i+1, j+2), (i+2, j), (i+2, j+1), (i+2, j+2)])
-                node.addRightConnection(connection);
-                miniNode.addLeftConnection(connection);
+                let boSqconnection = new Connection(squareNode.getMaxWeight(), node, squareNode);
+                for(var i_m = 0; i_m < 3; i_m++) {
+                    for (var j_m = 0; j_m < 3; j_m++) {
+                        boSqconnection.addPosition([i + i_m, j + j_m]);
+                    }
+                }
+                node.addRightConnection(boSqconnection);
+                squareNode.addLeftConnection(boSqconnection);
             }
         }
         this.nodeDict[boardState] = node;
@@ -180,10 +206,11 @@ class AI{
     input(boardState){
         let node;
         if(boardState in this.nodeDict){
+            node = this.nodeDict[boardState];
+        }else{
             node = this.updateBoard(boardState);
         }
         let choice = node.forwardPass();
-        console.log(choice);
         let index = choice[0];
 
         const board = document.getElementById('board');
@@ -201,16 +228,6 @@ class AI{
     }
 }
 
-function checkLength(which){
-    var box;
-    if(which){
-        box = document.getElementById('delay');
-    }else{
-        box = document.getElementById('rounds');
-    }
-    box.value = box.value.slice(0, 2);
-}
-
 var ai;
 function createAI(){
     resetBoard();
@@ -220,9 +237,9 @@ function createAI(){
     guy.src = "resources/hal.png";
 
     const aiOptions = document.getElementById('ai-options');
-    let text = "<tr><td><input type='number' oninput='checkLength(0)' class='option' id='rounds'>Rounds</input></td>";
+    let text = "<tr><td><input type='number' min='1' step='1' value='1' class='option' id='rounds'>Rounds</input></td>";
     text += "<td><button onclick='startUp()' class='option' id='start'>Start A Round</button></td>";
-    text += "<td><input type='number' oninput='checkLength(1)' class='option' id='delay'>Delay</input></td></tr>";
+    text += "<td><input type='number' min='0' step='1' value='0' class='option' id='delay'>Delay</input></td></tr>";
     aiOptions.innerHTML = text;
 }
 
@@ -231,6 +248,13 @@ function sleep(ms) {
 }
 
 function startUp() {
-    resetBoard();
-    ai.input(revealed);
+    const delay = document.getElementById('delay').value;
+    const rounds = document.getElementById('rounds').value;
+    for(let round = 0; round < rounds; round++) {
+        resetBoard();
+        do {
+            ai.input(revealed);
+            sleep(delay);
+        } while (started);
+    }
 }
